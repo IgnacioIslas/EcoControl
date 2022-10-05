@@ -36,7 +36,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
 }
 
 //Para obtener la MAC LOCAL
-String GetLocalMAC()
+String GetLocalWifiMAC()
 {
   WiFi.mode(WIFI_MODE_STA);
   return (WiFi.macAddress());
