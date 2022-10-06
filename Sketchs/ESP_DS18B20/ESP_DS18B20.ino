@@ -13,5 +13,5 @@ void loop()
 {
   //ds18b20.getTemp();
   delay(1000);
-  //ds18b20.printAdressAndTemp();
+  ds18b20.printAdressAndTemp();
 };

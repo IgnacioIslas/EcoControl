@@ -28,14 +28,7 @@ Search_ADRESS_DS18B20 DS18B20_devices::findAddrSensorsDS18B20()
 	{
 		memcpy(sensorAux, addr, 8);
 		memcpy(sensorNumber[jmax] , sensorAux, 8);
-		memcpy(this->sensoresArray[], sensorNumber, 8);
-    for (int i=0;i<8;i++)
-    	{
-			  Serial.print("0x");
-        Serial.print(this->sensoresArray[jmax][i],HEX);
-			  Serial.print(" ");
-    	}
-    Serial.println("");
+		memcpy(this->sensoresArray[jmax], sensorNumber[jmax], 8);
 		jmax=jmax+1;
 	}
 	this->cantidad_Sensores=jmax;
@@ -58,6 +51,7 @@ Temp_Request_Status DS18B20_devices::getTemp()
 
 uint8_t DS18B20_devices::printAdressAndTemp() 
 {	
+  this->sensores.requestTemperatures(); // Send the command to get temperatures
 	for (int j=0;j<this->cantidad_Sensores;j++)
   	{
 		  Serial.print(j);
@@ -68,8 +62,8 @@ uint8_t DS18B20_devices::printAdressAndTemp()
         Serial.print(this->sensoresArray[j][i],HEX);
 			  Serial.print(" ");
     	}
-		  Serial.print(this->sensores.getTempC(this->sensoresArray[j]));
-		  Serial.println("");
+      this->TempCArray[j]=this->sensores.getTempC(this->sensoresArray[j]);
+		  Serial.println(TempCArray[j]);
 		  delay(1000);
   	}
 	return 0;

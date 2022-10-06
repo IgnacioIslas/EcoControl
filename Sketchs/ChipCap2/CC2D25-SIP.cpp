@@ -1,4 +1,19 @@
-#include <CFF_ChipCap2.h>
+/**************************************************************************
+    This library is for the GE ChipCap2 Humidity & Temperature Sensor
+    
+    0 ~ 100% Relative Humidity  (7 Sec. response time)
+    -40 C ~ 125 C  Temperature (5 Sec. response time)
+    With Low and High alarm triggers.
+    
+    Various models with analog and digital output @ 3.3V or 5V operation.
+    
+    Digi-Key Part Number: 235-1339-ND   (Digital i2c, 5V)
+    Breakout Boards available at: www.circuitsforfun.com
+    Written by: Richard Wardlow @ Circuits for Fun, LLC
+    GNU GPL, include above text in redistribution
+***************************************************************************/
+
+#include "CC2D25-SIP.h"
 #include <Wire.h>
 
 ////////////////////////////////////////
@@ -10,10 +25,9 @@ CFF_ChipCap2::CFF_ChipCap2(uint8_t addr)
 }
 
 // Initiate the Wire library and join the I2C bus 
-void CFF_ChipCap2::Init_begin(void)
+void CFF_ChipCap2::begin(void)
 {
-    Wire.begin();
-    //Wire.begin(_i2caddr);
+    Wire.begin(_i2caddr);
     status = 0;
 }
 
@@ -64,7 +78,7 @@ bool CFF_ChipCap2::dataReady(void)
     uint8_t val;
     
     val = digitalRead(_readypin);
-    if (val == 0)
+    if ( val == 0)
         return false;
     if (val == 1)
         return true;
@@ -77,7 +91,7 @@ bool CFF_ChipCap2::checkAlarmLow(void)
     uint8_t val;
     
     val = digitalRead(_alowpin);
-    if (val == 0)
+    if ( val == 0)
         return false;
     if (val == 1)
         return true;
@@ -208,9 +222,9 @@ void CFF_ChipCap2::startCommandMode(void)
 {
     if (_pwrpin != NULL)
     {
-        power(1);
-        delay(50);
         power(0);
+        delay(50);
+        power(1);
         delay(2);
     }
     Wire.beginTransmission(_i2caddr);
@@ -269,3 +283,11 @@ void CFF_ChipCap2::ChangeAddr(uint8_t NEW_I2C_ADDRESS)
     Wire.write(NEW_I2C_ADDRESS);
     Wire.endTransmission();
 }
+
+
+
+//////////////////////////////////////////////////////
+// ChipCap2 Analog (Pulse Density Modulation) Class
+//////////////////////////////////////////////////////
+
+// TODO....

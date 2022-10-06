@@ -1,14 +1,18 @@
-//////////////////////////////////////////////////
-//////////////////////////////////////////////////
-////////////// Autor:Ignacio Islas 	//////////////
-//////////////		4/21/22			//////////////
-//////////////	  EcoControl		//////////////
-//////////////	  CC2D25-SIP.h		//////////////
-//////////////////////////////////////////////////
-//////////////////////////////////////////////////
-
-#ifndef CC2D25-SIP_h
-#define CC2D25-SIP_h
+/**************************************************************************
+    This library is for the GE ChipCap2 Humidity & Temperature Sensor
+    
+    0 ~ 100% Relative Humidity  (7 Sec. response time)
+    -40 C ~ 125 C  Temperature (5 Sec. response time)
+    Low and High Alarm settings.
+    
+    Various models with analog and digital output @ 3.3V or 5V operation.
+    
+    Digi-Key Part Number: 235-1339-ND   (Digital i2c, 5V)
+    Breakout Boards available at: www.circuitsforfun.com
+    
+    Written by: Richard Wardlow for Circuits for Fun, LLC
+    GNU GPL, include above text in redistribution
+***************************************************************************/
 
 #include <Wire.h>
 
@@ -33,7 +37,6 @@
 #define CCF_CHIPCAP2_ALARMLOW_PIN 3
 #define CCF_CHIPCAP2_ALARMHIGH_PIN 4
 
-
 ////////////////////////////////////////
 // ChipCap2 Digital I2C Class
 ////////////////////////////////////////
@@ -45,7 +48,7 @@ class CFF_ChipCap2
         void configReadyPin(uint8_t readypin = CCF_CHIPCAP2_READY_PIN);
         void configAlarmLowPin(uint8_t alowpin = CCF_CHIPCAP2_ALARMLOW_PIN);
         void configAlarmHighPin(uint8_t ahighpin = CCF_CHIPCAP2_ALARMHIGH_PIN);
-		void power(uint8_t onOff);
+        void power(uint8_t onOff);
         void startCommandMode(void);
         void startNormalMode(void);
         void begin(void);
@@ -62,7 +65,7 @@ class CFF_ChipCap2
         float humidity;
         float temperatureC;
         float temperatureF;
-		void CFF_ChipCap2::ChangeAddr(uint8_t NEW_I2C_ADDRESS);
+        void ChangeAddr(uint8_t NEW_I2C_ADDRESS);
         
     private:
         uint8_t _i2caddr;
@@ -72,3 +75,11 @@ class CFF_ChipCap2
         uint8_t _ahighpin;
 
 };
+
+
+//////////////////////////////////////////////////////
+// ChipCap2 Analog (Pulse Density Modulation) Class
+//////////////////////////////////////////////////////
+
+// TODO....
+

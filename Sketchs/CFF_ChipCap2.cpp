@@ -14,8 +14,9 @@
     GNU GPL, include above text in redistribution
 ***************************************************************************/
 
-#include <>
+
 #include <Wire.h>
+#include "CFF_ChipCap2.h"
 
 ////////////////////////////////////////
 // ChipCap2 Digital I2C Class Methods
