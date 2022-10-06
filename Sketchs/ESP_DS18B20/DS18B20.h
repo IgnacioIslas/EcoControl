@@ -11,12 +11,12 @@
 #define DS18B20_h
 
 //INCLUDES
-#include <Arduino.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include "pinDefines.h"
 
 //Define
-#define ONE_WIRE_BUS_PIN 4//DS18B20_PIN
+#define ONE_WIRE_BUS_PIN ONE_WIRE_DS18B20_PIN//DS18B20_PIN
 
 //types
 typedef DeviceAddress DevAddrMatriz[10];
@@ -45,9 +45,10 @@ class DS18B20_devices
     DallasTemperature sensores;
     float TempCArray[10];
   public:
+    DS18B20_devices();
+    DS18B20_devices(uint8_t BUS_PIN);
     uint8_t cantidad_Sensores;
     DeviceAddress sensoresArray[10];
-    void _init_search(uint8_t BUS_PIN);
     Search_ADRESS_DS18B20 findAddrSensorsDS18B20();
     Temp_Request_Status getTemp(); 
     uint8_t printAdressAndTemp() ;

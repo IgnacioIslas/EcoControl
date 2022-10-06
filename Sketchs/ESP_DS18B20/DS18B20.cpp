@@ -1,6 +1,14 @@
 #include "DS18B20.h"
 
-void DS18B20_devices::_init_search(uint8_t BUS_PIN) 
+DS18B20_devices::DS18B20_devices() 
+{
+	OneWire oneWireSens(ONE_WIRE_DS18B20_PIN);
+	DallasTemperature sensors(&oneWireSensores);
+	this->oneWireSensores = oneWireSens;
+	this->sensores = sensors;
+}
+
+DS18B20_devices::DS18B20_devices(uint8_t BUS_PIN) 
 {
 	OneWire oneWireSens(BUS_PIN);
 	DallasTemperature sensors(&oneWireSensores);
@@ -20,7 +28,14 @@ Search_ADRESS_DS18B20 DS18B20_devices::findAddrSensorsDS18B20()
 	{
 		memcpy(sensorAux, addr, 8);
 		memcpy(sensorNumber[jmax] , sensorAux, 8);
-		memcpy(this->sensoresArray, sensorNumber, 8);
+		memcpy(this->sensoresArray[], sensorNumber, 8);
+    for (int i=0;i<8;i++)
+    	{
+			  Serial.print("0x");
+        Serial.print(this->sensoresArray[jmax][i],HEX);
+			  Serial.print(" ");
+    	}
+    Serial.println("");
 		jmax=jmax+1;
 	}
 	this->cantidad_Sensores=jmax;
@@ -36,6 +51,7 @@ Temp_Request_Status DS18B20_devices::getTemp()
 	for(uint8_t n=0; n<this->cantidad_Sensores; n++)
 	{
 		this->TempCArray[n]=this->sensores.getTempC(this->sensoresArray[n]);
+    Serial.println(TempCArray[n]);
 	}
 	return REQUESTING_TEMP_DONE;
 }
@@ -44,17 +60,17 @@ uint8_t DS18B20_devices::printAdressAndTemp()
 {	
 	for (int j=0;j<this->cantidad_Sensores;j++)
   	{
-		Serial.print(j);
-		Serial.print(" ");
+		  Serial.print(j);
+		  Serial.print(" ");
     	for (int i=0;i<8;i++)
     	{
-			Serial.print("0x");
-      		Serial.print(this->sensoresArray[j][i],HEX);
-			Serial.print(" ");
+			  Serial.print("0x");
+        Serial.print(this->sensoresArray[j][i],HEX);
+			  Serial.print(" ");
     	}
-		Serial.print(this->sensores.getTempC(this->sensoresArray[j]));
-		Serial.println("");
-		delay(1000);
+		  Serial.print(this->sensores.getTempC(this->sensoresArray[j]));
+		  Serial.println("");
+		  delay(1000);
   	}
 	return 0;
 }
