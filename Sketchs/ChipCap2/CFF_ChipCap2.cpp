@@ -9,12 +9,14 @@
     
     Digi-Key Part Number: 235-1339-ND   (Digital i2c, 5V)
     Breakout Boards available at: www.circuitsforfun.com
+
     Written by: Richard Wardlow @ Circuits for Fun, LLC
     GNU GPL, include above text in redistribution
 ***************************************************************************/
 
-#include "CC2D25-SIP.h"
+
 #include <Wire.h>
+#include "CFF_ChipCap2.h"
 
 ////////////////////////////////////////
 // ChipCap2 Digital I2C Class Methods
@@ -27,7 +29,7 @@ CFF_ChipCap2::CFF_ChipCap2(uint8_t addr)
 // Initiate the Wire library and join the I2C bus 
 void CFF_ChipCap2::begin(void)
 {
-    Wire.begin(_i2caddr);
+    Wire.begin();
     status = 0;
 }
 
@@ -234,6 +236,7 @@ void CFF_ChipCap2::startCommandMode(void)
     Wire.endTransmission();
     delay(5);
     readSensor();
+    delay(100);
 }
 
 // Enters normal mode of operation
@@ -266,22 +269,30 @@ void CFF_ChipCap2::readSensor(void)
     temperatureF = temperatureC * 1.8 + 32;
 }
 
-// Cambiar Addres
-void CFF_ChipCap2::ChangeAddr(uint8_t NEW_I2C_ADDRESS)
-{
-    Wire.beginTransmission(_i2caddr);
-    Wire.write(0xA0);
-    Wire.write(0);
-    Wire.write(0);
-    Wire.endTransmission();
-    delay(5);
-    readSensor();
 
-    Wire.beginTransmission(_i2caddr);
+// Cambiar address del sensor, el pin de vcc tiene que ser seteado con configPowerPin 
+// y luego se debe iniciar el command mode
+// El new I2C address puede ser cualquier valor entre  0x00 and 0x7f.
+void CFF_ChipCap2::changeAddres(uint8_t CURRENT_I2C_ADDRESS,uint8_t NEW_I2C_ADDRESS)
+{
+  uint8_t low_Byte,high_Byte;
+  
+  if (status == CCF_CHIPCAP2_STATUS_COMMANDMODE)
+  {
+    Serial.print("ChipCap2 is now in command mode!\n"); 
+    Serial.print("Setting new I2C address:\n"); 
+    Serial.print(NEW_I2C_ADDRESS);
+    delay(100);
+    low_Byte = NEW_I2C_ADDRESS;
+    high_Byte = 0;
+    Wire.beginTransmission(CURRENT_I2C_ADDRESS);
     Wire.write(0x5c);
-    Wire.write(0);
-    Wire.write(NEW_I2C_ADDRESS);
+    Wire.write(high_Byte);
+    Wire.write(low_Byte);
     Wire.endTransmission();
+    delay(100);
+ }
+
 }
 
 

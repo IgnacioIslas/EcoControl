@@ -1,14 +1,108 @@
-#include <Arduino.h>
+/**************************************************************************
+    This is a test for the CFF_ChipCap2 Library
+    
+    This test will put the ChipCap2 Sensor into Command Mode,
+    Set a High and Low Alarm Value,
+    Then go back into Normal Mode and then print Temperature and Humidity
+    every 5 seconds.
+***************************************************************************/
 
-#include <Wire.h> 
-#include "CC2D25-SIP.h"
+#include <Wire.h>
+#include "CFF_ChipCap2.h"
 
 CFF_ChipCap2 cc2 = CFF_ChipCap2(0x28);
 CFF_ChipCap2 cc3 = CFF_ChipCap2(0x22);
 
-byte scanI2CBus() {
+void tryman()
+{
+
+  Serial.println("Intentando resetear");
+  cc2.startCommandMode();
+  if (cc2.status == CCF_CHIPCAP2_STATUS_COMMANDMODE)
+  {
+    cc2.changeAddres(0x28,0x22);
+  }
+  else
+  {
+     Serial.print("ChipCap2 is in normal mode.\n"); 
+  }
+  delay(100);
+}
+  
+void setup()
+{
+  
+  Serial.begin(115200);
+  cc2.begin();
+  cc3.begin();
+  delay(1000);
+  //cc2.configPowerPin(5);
+  //cc2.startCommandMode();
+  if (cc2.status == CCF_CHIPCAP2_STATUS_COMMANDMODE)
+  {
+    cc2.changeAddres(0x28,0x22);
+    delay(100);
+  }
+  else
+  {
+     Serial.print("ChipCap2 is in normal mode.\n"); 
+  }
+}
+
+
+
+void loop()
+{
+  while (1)
+  {   
+    if(Serial.available()>0)
+    {
+      tryman();
+      int inByte = Serial.read();
+    } 
+    else
+    {
+      
+      cc2.readSensor();
+      
+      Serial.print("CC2 sensor\n");
+      Serial.print("Humidity: ");
+      Serial.print(cc2.humidity);
+      Serial.print("\n");
+  
+      Serial.print("Temperature C: ");
+      Serial.print(cc2.temperatureC);
+      Serial.print("\n");
+
+      Serial.print("-----------------------------------\n");
+      delay(2000);
+
+      cc3.readSensor();
+      Serial.print("CC3 sensor\n");
+      Serial.print("Humidity: ");
+      Serial.print(cc3.humidity);
+      Serial.print("\n");
+  
+      Serial.print("Temperature C: ");
+      Serial.print(cc3.temperatureC);
+      Serial.print("\n");
+      
+      Serial.print("-----------------------------------\n");
+      delay(2000);
+
+    } 
+  }
+}
+/*
+#include <Wire.h>
+ 
+void setup() {
   Wire.begin();
+  Serial.begin(115200);
   Serial.println("\nI2C Scanner");
+}
+ 
+void loop() {
   byte error, address;
   int nDevices;
   Serial.println("Scanning...");
@@ -38,55 +132,6 @@ byte scanI2CBus() {
   else {
     Serial.println("done\n");
   }
-  Wire.endTransmission();
-  delay(5000);
-  return address;
+  delay(5000);          
 }
-
-void setup() 
-{
-  Serial.begin(115200);
-  
-  scanI2CBus();
-  //cc2.Init_begin();
-  //cc3.Init_begin();
-}
-
-void loop()
-{
-
-  
-  //cc2.ChangeAddr(0x22);
-  cc2.startNormalMode();
-  cc3.startNormalMode();
-  delay(100);
-  while (1)
-  {
-    if (cc2.dataReady() == true)
-    {
-      cc2.readSensor();
-      Serial.println("0x28");
-      Serial.print("Humidity: ");
-      Serial.print(cc2.humidity);
-      Serial.print("\n");
-  
-      Serial.print("Temperature C: ");
-      Serial.print(cc2.temperatureC);
-      Serial.print("\n");
-    }
-    if (cc3.dataReady() == true)
-    {
-      cc3.readSensor();
-      Serial.println("0x22");
-      Serial.print("Humidity: ");
-      Serial.print(cc3.humidity);
-      Serial.print("\n");
-  
-      Serial.print("Temperature C: ");
-      Serial.print(cc3.temperatureC);
-      Serial.print("\n");
-    }
-    
-    delay(5000);
-  }
-}
+*/

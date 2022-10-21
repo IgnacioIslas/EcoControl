@@ -65,7 +65,7 @@ class CFF_ChipCap2
         float humidity;
         float temperatureC;
         float temperatureF;
-        void ChangeAddr(uint8_t NEW_I2C_ADDRESS);
+        void changeAddres(uint8_t CURRENT_I2C_ADDRESS,uint8_t NEW_I2C_ADDRESS);
         
     private:
         uint8_t _i2caddr;
@@ -82,4 +82,5 @@ class CFF_ChipCap2
 //////////////////////////////////////////////////////
 
 // TODO....
+
 
