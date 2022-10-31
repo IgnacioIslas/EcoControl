@@ -13,13 +13,14 @@
 //  ESP32        -200 Hz  -1000   -250      -100
 //
 
-
+#define MAX_MESSAGE_LENGTH 15
 #include "MCP4725.h"
 #include "Wire.h"
 
-uint16_t     freq = 100;
+uint16_t   freq = 100;
 uint32_t   period = 0;
 uint32_t   halvePeriod = 0;
+String myString;
 
 // q = square
 // s = sinus
@@ -61,9 +62,49 @@ void setup()
   }
   period = 1e6 / freq;
   halvePeriod = period / 2;
+}
 
+
+void loop()
+{
   while (1)
   {
+    while (Serial.available() > 0)
+    {
+      static char message[MAX_MESSAGE_LENGTH];
+      static unsigned int message_pos = 0;
+      char inByte = Serial.read();
+
+      if ( inByte != '\n' && (message_pos < MAX_MESSAGE_LENGTH - 1) )
+      {
+        message[message_pos] = inByte;
+        message_pos++;
+      }
+      else
+      {
+        message[message_pos] = '\0';
+        Serial.println(message);
+        String myString = String(message);
+        message_pos = 0;
+
+        /*int ind1 = myString.indexOf(',');
+        Serial.println(myString.substring(1, ind1).toInt());
+        int ind2 = myString.indexOf(',', ind1+1);
+        char char_array[0];
+        myString.substring(ind1+1, ind2+1).toCharArray(char_array, 2);
+        mode=char_array[0];
+        Serial.println(mode);
+        int ind3 = myString.indexOf(',', ind2+1);
+        Serial.println(ind2);
+        Serial.println(myString.length());
+        //Serial.println(myString.substring(ind2+1,myString.length()-1));
+        //freq  = myString.substring(ind2+1).toInt();
+        Serial.println(freq);
+        period = 1e6 / freq;
+        halvePeriod = period / 2;*/
+      }
+    }
+    
     yield();
     uint32_t now = micros();
 
@@ -163,12 +204,9 @@ void setup()
         MCP.setValue(sine[idx]);  // lookuptable
         break;
     }
+  
   }
-}
-
-
-void loop()
-{
+  
 }
 
 
