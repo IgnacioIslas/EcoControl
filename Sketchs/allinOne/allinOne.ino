@@ -25,6 +25,20 @@ SDP8XXSensor sdp;
 ADS1219 ads(drdy,0x40);
 AT24CM01 EEPROM;
 
+//Reles
+Reless Rele1 = Reless(Rele1OUT);
+Reless Rele2 = Reless(Rele2OUT);
+Reless Rele3 = Reless(Rele3OUT);
+Reless Rele4 = Reless(Rele4OUT);
+Reless Rele5 = Reless(Rele5OUT);
+
+//Optos
+Opto Opto1 = Opto(OPTO_1_PIN);
+Opto Opto2 = Opto(OPTO_2_PIN);
+Opto Opto3 = Opto(OPTO_3_PIN);
+Opto Opto4 = Opto(OPTO_4_PIN);
+Opto Opto5 = Opto(OPTO_5_PIN);
+
 //Para testear la EEPROM
 char array[INDEX_SIZE] = "12345";    // arrays values to be stored
 int ibuff = 2839;                    // int value to be stored
@@ -34,6 +48,34 @@ float fbuff = -245.2049;             // float value to be stored
 unsigned int localPort = 1883;    //10002;  // local port to listen on
 char packetBuffer[255];          // buffer to hold incoming packet
 char ReplyBuffer[] = "ACK";      // a string to send back
+
+//Callbacks functions Opto begin
+void IRAM_ATTR ISR_1() 
+{
+  Serial.println("opto 1 Interrupt");
+}
+
+void IRAM_ATTR ISR_2() 
+{
+  Serial.println("opto 2 Interrupt");
+}
+
+void IRAM_ATTR ISR_3() 
+{
+  Serial.println("opto 3 Interrupt");
+}
+
+void IRAM_ATTR ISR_4() 
+{
+  Serial.println("opto 4 Interrupt");
+}
+
+void IRAM_ATTR ISR_5() 
+{
+  Serial.println("opto 5 Interrupt");
+}
+//Callbacks functions end
+
 
 void ethernetSetup() 
 {
@@ -132,6 +174,12 @@ void ethernetSetup()
   Serial.println(localPort);
 }
 
+void sendUDPmessage(char* mensajee)
+{
+  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+  Udp.write(mensajee);
+  Udp.endPacket();
+}
 
 void readpacket()
 {
@@ -186,12 +234,8 @@ void readADS() {
   Serial.println(ads.readDifferential_2_3()*5/pow(2,23));
   delay(1000);
   Serial.print(".........................................\n");*/
-  sprintf(ReplyBuffer,".........................................\n S0= %.4f\n S1= %.4f\n S2= %.4f\n S3= %.4f",val1,val2,val3,val4);
+  sprintf(ReplyBuffer,".........................................\n S0= %.4f\n S1= %.4f\n S2= %.4f\n S3= %.4f \n",val1,val2,val3,val4);
   Serial.println(ReplyBuffer);
-
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(ReplyBuffer);
-  Udp.endPacket();
 }
 
 void adsInit()
@@ -210,9 +254,6 @@ void readCHIPCAP2()
   cc3.readSensor();
   sprintf(ReplyBuffer,"--------------------------------\nCC2 sensor\nHumidity: %.2f\nTemperature C: %.2f\n --------------------------------\nCC3 sensor\nHumidity: %.2f\nTemperature C: %.2f\n",cc2.humidity,cc2.temperatureC,cc3.humidity,cc3.temperatureC);
   Serial.print(ReplyBuffer);
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(ReplyBuffer);
-  Udp.endPacket();
 }
 
 void readPressure() 
@@ -226,9 +267,6 @@ void readPressure()
       Serial.println(ret);
   }
   delay(500);
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(ReplyBuffer);
-  Udp.endPacket();
 }
 
 void EEPROM_test() {
@@ -253,6 +291,7 @@ void EEPROM_test() {
   Serial.print("\n\n .........................................");
 }
 
+
 void setup() {
   Wire.begin();  
   adsInit();  
@@ -273,20 +312,45 @@ void setup() {
   }
   EEPROM_test(); //Para testear la EEPROM
   delay(1000);
-  
+  Opto1.enableInterrupt(ISR_1, CHANGE);
+  Opto2.enableInterrupt(ISR_2, CHANGE);
+  Opto3.enableInterrupt(ISR_3, CHANGE);
+  Opto4.enableInterrupt(ISR_4, CHANGE);
+  Opto5.enableInterrupt(ISR_5, CHANGE);
 }
 
 void loop() 
 {
+  readpacket();
   readCHIPCAP2();
+  sendUDPmessage(ReplyBuffer);
   readPressure();
-  //ds18b20.printAdressAndTemp();
-  /*ds18b20.getTemp();
+  sendUDPmessage(ReplyBuffer);
+  ds18b20.printAdressAndTemp();
+  ds18b20.getTemp();
   sprintf(ReplyBuffer,"--------------------------------\nTemp1: %.2f\nTemp 2: %.2f\n --------------------------------\n",ds18b20.TempCArray[0],ds18b20.TempCArray[1]);
-  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-  Udp.write(ReplyBuffer);
-  Udp.endPacket();*/
+  sendUDPmessage(ReplyBuffer);
   readADS();
+  sendUDPmessage(ReplyBuffer);
 
-  //readpacket();
+  Rele1.toggle();
+  delay(500);
+  Rele2.toggle();
+  delay(500);
+  Rele3.toggle();
+  delay(500);
+  Rele4.toggle();
+  delay(500);
+  Rele5.toggle();
+  delay(4000);
+  Serial.print("OPTO1 : ");
+  Serial.println(Opto1.ReadOpto());
+  Serial.print("OPTO2 : ");
+  Serial.println(Opto2.ReadOpto());
+  Serial.print("OPTO3 : ");
+  Serial.println(Opto3.ReadOpto());  
+  Serial.print("OPTO4 : ");
+  Serial.println(Opto4.ReadOpto());
+  Serial.print("OPTO5 : ");
+  Serial.println(Opto5.ReadOpto());
 }
