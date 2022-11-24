@@ -31,8 +31,7 @@ void setup()
   SerialDebug.print(F(" with ")); SerialDebug.println(SHIELD_TYPE); 
   SerialDebug.println(ETHERNET_GENERIC_VERSION);
   
-while(1)
-{  
+  
 #if (USING_SPI2)
   #if defined(CUR_PIN_MISO)
     ETG_LOGWARN(F("Default SPI pinout:"));
@@ -172,7 +171,7 @@ while(1)
     SerialDebug.print(F(", Duplex: ")); SerialDebug.print(Ethernet.duplexReport());
     SerialDebug.print(F(", Link status: ")); SerialDebug.println(Ethernet.linkReport());
   }
-}
+
   SerialDebug.println(F("\nStarting connection to server..."));
   // if you get a connection, report back via serial:
   Udp.begin(localPort);
