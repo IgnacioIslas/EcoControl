@@ -60,7 +60,7 @@ class ADS1219  {
 	uint8_t address;
   public:
     // Constructor 
-    ADS1219(int drdy, uint8_t addr = 0x40);
+    ADS1219(uint8_t addr = 0x40);
 
     // Methods
     void begin();

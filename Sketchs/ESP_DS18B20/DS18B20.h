@@ -43,8 +43,8 @@ class DS18B20_devices
   private:
     OneWire oneWireSensores;
     DallasTemperature sensores;
-    float TempCArray[10];
   public:
+    float TempCArray[10];
     DS18B20_devices();
     DS18B20_devices(uint8_t BUS_PIN);
     uint8_t cantidad_Sensores;

@@ -7,7 +7,8 @@
 #include <Wire.h>
 #include "ADS1219.h"
 
-static uint8_t i2cRead(void) {
+static uint8_t i2cRead(void) 
+{
   #if ARDUINO >= 100
   return Wire.read();
   #else
@@ -24,18 +25,20 @@ static void i2cWrite(uint8_t x) {
 }
 
 
-ADS1219::ADS1219(int drdy, uint8_t addr) {
-  data_ready = drdy;
+ADS1219::ADS1219(uint8_t addr) 
+{
   address = addr;
   config = 0x00;
   singleShot = true;
 }
 
-void ADS1219::begin() {
+void ADS1219::begin() 
+{
   Wire.begin();
 }
 
-void ADS1219::start(){
+void ADS1219::start()
+{
   Wire.beginTransmission(address);
   i2cWrite(0x08);
   Wire.endTransmission();
