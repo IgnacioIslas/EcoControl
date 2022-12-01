@@ -116,7 +116,7 @@ void ethernetSetup()
   usbC.print(F("Listening on port "));
   usbC.println(localPort);
 }
-asdasdasd
+
 void sendUDPmessage(char* mensajee)
 {
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
