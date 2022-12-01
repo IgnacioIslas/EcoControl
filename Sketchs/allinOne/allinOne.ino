@@ -276,6 +276,12 @@ void setup()
   Wire.begin();  
   adsInit();  
   usbC.begin(115200);
+
+  //Configuro pin de habilitacion para RS485/422 y seteo 
+  rs485rs232.begin(115200);
+  pinMode(U2TxEN, OUTPUT);
+  digitalWrite(U2TxEN,HIGH);
+
   delay(500);
   ethernetSetup();
   delay(1000); // let serial console settle
@@ -289,8 +295,10 @@ void setup()
   if (sdp.init() == 0) 
   {
       usbC.print("\nSDP INIT OK\n");
+      rs485rs232.print("\nSDP INIT OK\n");
   } else {
       usbC.print("\nSDP INIT FAIL\n");
+      rs485rs232.print("\nSDP INIT FAIL\n");
   }
   delay(1000);
   Opto1.enableInterrupt(ISR_1, CHANGE);
@@ -304,6 +312,7 @@ void setup()
 
 void loop() 
 {
+  rs485rs232.print("\nRS485/422 esta funcionando\n");
   readpacket();
   usbC.print(readCHIPCAP2());
   //sendUDPmessage(ReplyBuffer);
