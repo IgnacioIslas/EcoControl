@@ -6,11 +6,11 @@
 #include "DS18B20.h"
 #include "ADS1219.h"
 #include "AT24CM01.h"
-
 #include <string.h>
 
-
-#define rst 14
+//HARDWARE Serial
+HardwareSerial &usbC         = Serial;
+HardwareSerial &rs485rs232   = Serial2;
 
 // A UDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
@@ -49,38 +49,38 @@ char ReplyBuffer[] = "ACK";      // a string to send back
 //Callbacks functions Opto begin
 void IRAM_ATTR ISR_1() 
 {
-  Serial.println("opto 1 Interrupt");
+  usbC.println("opto 1 Interrupt");
 }
 
 void IRAM_ATTR ISR_2() 
 {
-  Serial.println("opto 2 Interrupt");
+  usbC.println("opto 2 Interrupt");
 }
 
 void IRAM_ATTR ISR_3() 
 {
-  Serial.println("opto 3 Interrupt");
+  usbC.println("opto 3 Interrupt");
 }
 
 void IRAM_ATTR ISR_4() 
 {
-  Serial.println("opto 4 Interrupt");
+  usbC.println("opto 4 Interrupt");
 }
 
 void IRAM_ATTR ISR_5() 
 {
-  Serial.println("opto 5 Interrupt");
+  usbC.println("opto 5 Interrupt");
 }
 //Callbacks functions end
 
 
 void ethernetSetup() 
 {
-  Serial.print("\nStart UDPSendReceive on "); 
-  Serial.print(BOARD_NAME);
-  Serial.print(F(" with ")); 
-  Serial.println(SHIELD_TYPE); 
-  Serial.println(ETHERNET_GENERIC_VERSION);
+  usbC.print("\nStart UDPSendReceive on "); 
+  usbC.print(BOARD_NAME);
+  usbC.print(F(" with ")); 
+  usbC.println(SHIELD_TYPE); 
+  usbC.println(ETHERNET_GENERIC_VERSION);
 
   #if defined(ESP32)
 
@@ -98,23 +98,23 @@ void ethernetSetup()
     Ethernet.begin(mac[index]);
   #endif
  
-  Serial.print(F("Using mac index = "));
-  Serial.println(index);
-  Serial.print(F("Connected! IP address: "));
-  Serial.println(Ethernet.localIP());
+  usbC.print(F("Using mac index = "));
+  usbC.println(index);
+  usbC.print(F("Connected! IP address: "));
+  usbC.println(Ethernet.localIP());
   if ( (Ethernet.getChip() == w5500) || (Ethernet.getAltChip() == w5100s) )
   {
-    Serial.print(F("Speed: "));    
-    Serial.print(Ethernet.speedReport());
-    Serial.print(F(", Duplex: ")); 
-    Serial.print(Ethernet.duplexReport());
-    Serial.print(F(", Link status: ")); 
-    Serial.println(Ethernet.linkReport());
+    usbC.print(F("Speed: "));    
+    usbC.print(Ethernet.speedReport());
+    usbC.print(F(", Duplex: ")); 
+    usbC.print(Ethernet.duplexReport());
+    usbC.print(F(", Link status: ")); 
+    usbC.println(Ethernet.linkReport());
   }
-  Serial.println(F("\nStarting connection to server..."));
+  usbC.println(F("\nStarting connection to server..."));
   Udp.begin(localPort);
-  Serial.print(F("Listening on port "));
-  Serial.println(localPort);
+  usbC.print(F("Listening on port "));
+  usbC.println(localPort);
 }
 
 void sendUDPmessage(char* mensajee)
@@ -130,13 +130,13 @@ void readpacket()
   int packetSize = Udp.parsePacket();
   if (packetSize)
   {
-    Serial.print(F("Received packet of size "));
-    Serial.println(packetSize);
-    Serial.print(F("From "));
+    usbC.print(F("Received packet of size "));
+    usbC.println(packetSize);
+    usbC.print(F("From "));
     IPAddress remoteIp = Udp.remoteIP();
-    Serial.print(remoteIp);
-    Serial.print(F(", port "));
-    Serial.println(Udp.remotePort());
+    usbC.print(remoteIp);
+    usbC.print(F(", port "));
+    usbC.println(Udp.remotePort());
 
     // read the packet into packetBufffer
     int len = Udp.read(packetBuffer, 255);
@@ -146,15 +146,16 @@ void readpacket()
       packetBuffer[len] = 0;
     }
 
-    Serial.println(F("Contents:"));
-    Serial.println(packetBuffer);
+    usbC.println(F("Contents:"));
+    usbC.println(packetBuffer);
     // send a reply, to the IP address and port that sent us the packet we received
     char ReplyBuffer[] = "ACK";
     sendUDPmessage(ReplyBuffer);  
   }
 }
 
-String readADS() {
+String readADS() 
+{
   char Buffer1[300];
   //Leo adc 1
   float val1 = (float) ads1.readSingleEnded(0)*5/pow(2,23);
@@ -165,16 +166,16 @@ String readADS() {
   delay(100);
   float val4 = (float) ads1.readSingleEnded(3)*5/pow(2,23);
   delay(100);
-  /*Serial.println("Differential result 0-1:");
-  Serial.println(ads.readDifferential_0_1()*5/pow(2,23));
+  /*usbC.println("Differential result 0-1:");
+  usbC.println(ads.readDifferential_0_1()*5/pow(2,23));
   delay(1000);
-  Serial.println("Differential result 1-2:");
-  Serial.println(ads.readDifferential_1_2()*5/pow(2,23));
+  usbC.println("Differential result 1-2:");
+  usbC.println(ads.readDifferential_1_2()*5/pow(2,23));
   delay(1000);
-  Serial.println("Differential result 2-3:");
-  Serial.println(ads.readDifferential_2_3()*5/pow(2,23));
+  usbC.println("Differential result 2-3:");
+  usbC.println(ads.readDifferential_2_3()*5/pow(2,23));
   delay(1000);
-  Serial.print(".........................................\n");*/
+  usbC.print(".........................................\n");*/
   sprintf(Buffer1,".........................................\n ADC1\nS0= %.4f\n S1= %.4f\n S2= %.4f\n S3= %.4f \n",val1,val2,val3,val4);
   
   char Buffer2[300];
@@ -274,7 +275,7 @@ void setup()
 {
   Wire.begin();  
   adsInit();  
-  Serial.begin(115200);
+  usbC.begin(115200);
   delay(500);
   ethernetSetup();
   delay(1000); // let serial console settle
@@ -287,9 +288,9 @@ void setup()
   delay(500);
   if (sdp.init() == 0) 
   {
-      Serial.print("\nSDP INIT OK\n");
+      usbC.print("\nSDP INIT OK\n");
   } else {
-      Serial.print("\nSDP INIT FAIL\n");
+      usbC.print("\nSDP INIT FAIL\n");
   }
   delay(1000);
   Opto1.enableInterrupt(ISR_1, CHANGE);
@@ -304,15 +305,15 @@ void setup()
 void loop() 
 {
   readpacket();
-  Serial.print(readCHIPCAP2());
+  usbC.print(readCHIPCAP2());
   //sendUDPmessage(ReplyBuffer);
-  Serial.print(readPressure());
+  usbC.print(readPressure());
   //sendUDPmessage(ReplyBuffer);
   ds18b20.printAdressAndTemp();
   sprintf(ReplyBuffer,"--------------------------------\nTemp1: %.2f\nTemp 2: %.2f\n --------------------------------\n",ds18b20.TempCArray[0],ds18b20.TempCArray[1]);
   //sendUDPmessage(ReplyBuffer);
-  Serial.print(EEPROM_read());
-  Serial.print(readADS());
+  usbC.print(EEPROM_read());
+  usbC.print(readADS());
   //sendUDPmessage(ReplyBuffer);
 
   Rele1.toggle();
@@ -325,14 +326,14 @@ void loop()
   delay(1000);
   Rele5.toggle();
   delay(1000);
-  Serial.print("OPTO1 : ");
-  Serial.println(Opto1.ReadOpto());
-  Serial.print("OPTO2 : ");
-  Serial.println(Opto2.ReadOpto());
-  Serial.print("OPTO3 : ");
-  Serial.println(Opto3.ReadOpto());  
-  Serial.print("OPTO4 : ");
-  Serial.println(Opto4.ReadOpto());
-  Serial.print("OPTO5 : ");
-  Serial.println(Opto5.ReadOpto());
+  usbC.print("OPTO1 : ");
+  usbC.println(Opto1.ReadOpto());
+  usbC.print("OPTO2 : ");
+  usbC.println(Opto2.ReadOpto());
+  usbC.print("OPTO3 : ");
+  usbC.println(Opto3.ReadOpto());  
+  usbC.print("OPTO4 : ");
+  usbC.println(Opto4.ReadOpto());
+  usbC.print("OPTO5 : ");
+  usbC.println(Opto5.ReadOpto());
 }
