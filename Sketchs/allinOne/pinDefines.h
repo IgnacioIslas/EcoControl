@@ -50,7 +50,18 @@
 #define GPIO26    26
 #define GPIO27    27
 
-
+///////I2C Address///////
+#define ChipCap_1 		0x22
+#define ChipCap_2 		0x28
+#define SDP810		 	0x25
+#define ADS_1 			0x40
+#define ADS_2 			0x41
+#define EEPROM 			0x50
+#define PCA9536 		0x51
+#define DAC_1			0x62
+#define DAC_1			0x63
+#define DAC_1			0x64
+#define DAC_1			0x65
 
 class Reless
 {
