@@ -56,12 +56,12 @@
 #define SDP810		 	0x25
 #define ADS_1 			0x40
 #define ADS_2 			0x41
-#define EEPROM 			0x50
-#define PCA9536 		0x51
+#define EEPROM_ADDR		0x50
+#define PCA9536_ADDR	0x51
 #define DAC_1			0x62
-#define DAC_1			0x63
-#define DAC_1			0x64
-#define DAC_1			0x65
+#define DAC_2			0x63
+#define DAC_3			0x64
+#define DAC_4			0x65
 
 class Reless
 {

@@ -13,7 +13,10 @@
 //INCLUDES
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "pinDefines.h"
+
+#ifndef pinDefines_h
+#include "../pinDefines.h"
+#endif
 
 //Define
 #define ONE_WIRE_BUS_PIN ONE_WIRE_DS18B20_PIN//DS18B20_PIN

@@ -1,4 +1,4 @@
-#include "AT24CM01.h"
+#include "../EEPROM/AT24CM01.h"
 
 AT24CM01 EEPROM;                                                    
 

@@ -1,11 +1,13 @@
 #include <Wire.h>
-#include "pinDefines.h"
-#include "WizNet.h"
-#include "sdpsensor.h"
-#include "CFF_ChipCap2.h"
-#include "DS18B20.h"
-#include "ADS1219.h"
-#include "AT24CM01.h"
+#include "./Libraries/pinDefines.cpp"
+#include "./Libraries/WizNet_UDP_SR/WizNet.h"
+#include "./Libraries/SDP810/sdpsensor.cpp"
+#include "./Libraries/SDP810/i2chelper.cpp"
+#include "./Libraries/ChipCap2/CFF_ChipCap2.cpp"
+#include "./Libraries/ESP_DS18B20/DS18B20.cpp"
+#include "./Libraries/ADS1219/ADS1219.cpp"
+#include "./Libraries/EEPROM/AT24CM01.cpp"
+#include "./Libraries/PCA9536/SparkFun_PCA9536_Arduino_Library.cpp"
 #include <string.h>
 
 //HARDWARE Serial
@@ -19,12 +21,13 @@ EthernetUDP Udp;
 DS18B20_devices ds18b20;
 
 //BUS I2C
-CFF_ChipCap2 cc2 = CFF_ChipCap2(0x28);
-CFF_ChipCap2 cc3 = CFF_ChipCap2(0x22);
+CFF_ChipCap2 cc2 = CFF_ChipCap2(ChipCap_1);
+CFF_ChipCap2 cc3 = CFF_ChipCap2(ChipCap_2);
 SDP8XXSensor sdp;
-ADS1219 ads1(0x40);
-ADS1219 ads2(0x41);
+ADS1219 ads1(ADS_1);
+ADS1219 ads2(ADS_2);
 AT24CM01 EEPROM;
+PCA9536 io;
 
 //Reles
 Reless Rele1 = Reless(Rele1OUT);
@@ -273,25 +276,31 @@ String EEPROM_read()
 
 void setup() 
 {
+  //BUS I2C Init
   Wire.begin();  
+  //ADS INIT
   adsInit();  
+  //USB UART INIT
   usbC.begin(115200);
-
   //Configuro pin de habilitacion para RS485/422 y seteo 
   rs485rs232.begin(115200);
   pinMode(U2TxEN, OUTPUT);
   digitalWrite(U2TxEN,HIGH);
-
   delay(500);
+  //Ethernet Setup
   ethernetSetup();
   delay(1000); // let serial console settle
+  //DS18B20
   ds18b20.findAddrSensorsDS18B20();
   delay(1000);
+  //ChipCap Sensors begin
   cc2.begin();
   cc3.begin();
   delay(1000);
+  //Eprom Init
   EEPROM.begin();
   delay(500);
+  //Sensor de PResion Init
   if (sdp.init() == 0) 
   {
       usbC.print("\nSDP INIT OK\n");
@@ -301,12 +310,28 @@ void setup()
       rs485rs232.print("\nSDP INIT FAIL\n");
   }
   delay(1000);
+  //Inicializo el PA9536 (salidas led)
+  if (io.begin() == false)
+  {
+    Serial.println("PCA9536 not detected. Please check wiring. Freezing...");
+    while (1);
+  }
+  io.pinMode(0, OUTPUT);
+  delay(1000);
+  io.pinMode(1, OUTPUT);
+  delay(1000);
+  io.pinMode(2, INPUT);
+  delay(1000);
+  io.pinMode(3, INPUT);
+  delay(1000);
+  //Habilito Interrupciones de entradas de OPTO
   Opto1.enableInterrupt(ISR_1, CHANGE);
   Opto2.enableInterrupt(ISR_2, CHANGE);
   Opto3.enableInterrupt(ISR_3, CHANGE);
   Opto4.enableInterrupt(ISR_4, CHANGE);
   Opto5.enableInterrupt(ISR_5, CHANGE);
   delay(500);
+  //Escribo la memoria EEPROM
   EEPROM_write();
 }
 
@@ -314,16 +339,43 @@ void loop()
 {
   rs485rs232.print("\nRS485/422 esta funcionando\n");
   readpacket();
-  usbC.print(readCHIPCAP2());
-  //sendUDPmessage(ReplyBuffer);
+  readCHIPCAP2().toCharArray(ReplyBuffer, 300);
+  usbC.print(ReplyBuffer);
+  delay(200);
+  rs485rs232.print(ReplyBuffer);
+  delay(200);
+  sendUDPmessage(ReplyBuffer);
+  delay(200);
   usbC.print(readPressure());
-  //sendUDPmessage(ReplyBuffer);
+  delay(200);
+  readPressure().toCharArray(ReplyBuffer, 300);
+  sendUDPmessage(ReplyBuffer);
+  delay(200);
+  rs485rs232.print(ReplyBuffer);
+  delay(200);
   ds18b20.printAdressAndTemp();
   sprintf(ReplyBuffer,"--------------------------------\nTemp1: %.2f\nTemp 2: %.2f\n --------------------------------\n",ds18b20.TempCArray[0],ds18b20.TempCArray[1]);
-  //sendUDPmessage(ReplyBuffer);
-  usbC.print(EEPROM_read());
-  usbC.print(readADS());
-  //sendUDPmessage(ReplyBuffer);
+  sendUDPmessage(ReplyBuffer);
+  delay(200);
+  EEPROM_read().toCharArray(ReplyBuffer, 300);
+  usbC.print(ReplyBuffer);
+  delay(200);
+  rs485rs232.print(ReplyBuffer);
+  delay(200);
+  sendUDPmessage(ReplyBuffer);
+  delay(200);
+  readADS().toCharArray(ReplyBuffer, 300);
+  usbC.print(ReplyBuffer);
+  delay(200);
+  sendUDPmessage(ReplyBuffer);
+  delay(200);
+  rs485rs232.print(ReplyBuffer);
+  delay(200);
+
+  io.write(0, LOW);
+  delay(500);
+  io.write(1, LOW);
+  delay(500);
 
   Rele1.toggle();
   delay(1000);
@@ -335,6 +387,12 @@ void loop()
   delay(1000);
   Rele5.toggle();
   delay(1000);
+
+  io.write(0, HIGH);
+  delay(500);
+  io.write(1, HIGH);
+  delay(500);
+
   usbC.print("OPTO1 : ");
   usbC.println(Opto1.ReadOpto());
   usbC.print("OPTO2 : ");
