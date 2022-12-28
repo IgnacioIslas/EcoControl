@@ -77,7 +77,7 @@ byte mac[][NUMBER_OF_MAC] =
 };
 
 // Select the IP address according to your local network
-IPAddress ip(192, 168, 0, 184);
+IPAddress ip(192, 168, 0, 183);
 
 // Google DNS Server IP
 IPAddress myDns(8, 8, 8, 8);
