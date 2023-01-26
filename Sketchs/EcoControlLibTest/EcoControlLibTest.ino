@@ -34,7 +34,7 @@
   const char* ssid = "DESARROLLO";
   const char* password = "RediDesa120#";
   //Your Domain name with URL path or IP address with path
-  String serverName = "http://192.168.0.167:1880/update-sensor";
+  String serverName = "http://192.168.0.199:1880/data-get";
 #endif
 #ifdef MODOMQTT
   #include "./Libraries/pubsubclient-master/src/PubSubClient.cpp"
@@ -142,7 +142,7 @@ void setup_wifi()
     usbC.print("Connecting to ");
     usbC.println(ssid);
     WiFi.begin(ssid, password);
-    if(WiFi.status() != WL_CONNECTED)
+    /*if(WiFi.status() != WL_CONNECTED)
     {
       IPAddress  staticIP(192, 168, 0, 31);
       IPAddress  gateway(192, 168, 0, 101);
@@ -150,13 +150,12 @@ void setup_wifi()
       IPAddress  dns(208, 67, 220, 220);
       WiFi.config(staticIP, gateway, subnet, dns, dns);
       usbC.println("Configuration failed... trying with dynamic IP");
-    }
+    }*/
     uint8_t count=0;
-    while (WiFi.status() != WL_CONNECTED & count<=20) 
+    while (WiFi.status() != WL_CONNECTED & count<=150) 
     {
       delay(500);
       usbC.print(".");
-      WiFi.begin(ssid, password);
       count++;
     }
     if(WiFi.status() != WL_CONNECTED)
@@ -180,37 +179,43 @@ void postHTTPstring(String dataSend)
   //Check WiFi connection status
   if(WiFi.status()== WL_CONNECTED)
   {
+   
+    WiFiClient client;
     HTTPClient http;
-    String serverPath = serverName + "?temperature=" + dataSend;
-    usbC.println(serverPath.c_str());
+
     // Your Domain name with URL path or IP address with path
-    http.begin(serverPath.c_str());
-    // If you need Node-RED/server authentication, insert user and password below
-    //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
-    // Send HTTP GET request
-    int httpResponseCode = http.GET();
-    if (httpResponseCode>0) 
-    {
-      usbC.print("HTTP Response code: ");
-      usbC.println(httpResponseCode);
-      rs485rs232.print("HTTP Response code: ");
-      rs485rs232.println(httpResponseCode);
-      String payload = http.getString();
-      usbC.println(payload);
-      rs485rs232.println(payload);
-    }
-    else 
-    {
-      usbC.print("Error code: ");
-      usbC.println(httpResponseCode);
-      rs485rs232.print("Error code: ");
-      rs485rs232.println(httpResponseCode);
-    }
-  // Free resources
-  http.end();
+    http.begin(client, serverName);
+    // Specify content-type header
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    // Data to send with HTTP POST
+    //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
+    // Send HTTP POST request
+    //int httpResponseCode = http.POST(httpRequestData);
+     
+    // If you need an HTTP request with a content type: application/json, use the following:
+    http.addHeader("Content-Type", "application/json");
+    int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"voltage1\":\""+String (dataSend)+"\"}");
+
+    // If you need an HTTP request with a content type: text/plain
+    //http.addHeader("Content-Type", "text/plain");
+    //int httpResponseCode = http.POST("Hello, World!");
+    usbC.println("------------------------------------------------------------------------");
+    usbC.println("Envio de Datos Get");
+    usbC.print("HTTP Response code: ");
+    usbC.println(httpResponseCode);
+    rs485rs232.println("------------------------------------------------------------------------");
+    rs485rs232.println("Envio de Datos Get");
+    rs485rs232.print("HTTP Response code: ");
+    rs485rs232.println(httpResponseCode);
+
+    // Free resources
+    http.end();
   }
   else 
-  {usbC.println("WiFi Disconnected");}
+  {
+    usbC.println("WiFi Disconnected");
+    setup_wifi();
+  }
 }
 #endif
 

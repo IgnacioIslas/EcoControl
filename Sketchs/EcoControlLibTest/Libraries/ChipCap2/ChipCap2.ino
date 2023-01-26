@@ -10,10 +10,22 @@
 #include <Wire.h>
 #include "CFF_ChipCap2.h"
 
-CFF_ChipCap2 cc2 = CFF_ChipCap2(0x28);
-CFF_ChipCap2 cc3 = CFF_ChipCap2(0x22);
+//Cambio el addres del sensor CHIPCAP
+//Para hacerlo conectar el sensor en el I2C de 3.3V de la bornera
+//El PIN de 3.3V(VDD del sensor) conectarlo en el pin POWERPIN definido a continuacion
+//Para probarlo utilice el pin 27 sin pull-up que se encuentra en la placa.
+//Por defecto la direccion es 0x28
+//Modificar DEFAULT_CHIPCAP_ADDR y NEW_CHIPCAP_ADDR segun se requiera
+ 
+#define PIN_POWERPIN 27
 
-void tryman()
+#define DEFAULT_CHIPCAP_ADDR 0x28
+#define NEW_CHIPCAP_ADDR 0x22
+
+CFF_ChipCap2 cc2 = CFF_ChipCap2(DEFAULT_CHIPCAP_ADDR);
+CFF_ChipCap2 cc3 = CFF_ChipCap2(NEW_CHIPCAP_ADDR);
+
+void CambioDeAdress()
 {
 
   Serial.println("Intentando resetear");
@@ -36,8 +48,8 @@ void setup()
   cc2.begin();
   cc3.begin();
   delay(1000);
-  //cc2.configPowerPin(5);
-  //cc2.startCommandMode();
+  cc2.configPowerPin(PIN_POWERPIN);
+  CambioDeAdress();
   if (cc2.status == CCF_CHIPCAP2_STATUS_COMMANDMODE)
   {
     cc2.changeAddres(0x28,0x22);
@@ -57,7 +69,7 @@ void loop()
   {   
     if(Serial.available()>0)
     {
-      tryman();
+      CambioDeAdress();
       int inByte = Serial.read();
     } 
     else
