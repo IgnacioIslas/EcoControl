@@ -177,45 +177,38 @@ void setup_wifi()
 void postHTTPstring(String dataSend)
 {
   //Check WiFi connection status
-  if(WiFi.status()== WL_CONNECTED)
-  {
-   
+//Check WiFi connection status
+  if(WiFi.status()== WL_CONNECTED){
     WiFiClient client;
     HTTPClient http;
 
+    ///////ESTo ES PARA LA PC LOCAL////////
     // Your Domain name with URL path or IP address with path
     http.begin(client, serverName);
+    
     // Specify content-type header
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     // Data to send with HTTP POST
     //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&value1=24.25&value2=49.54&value3=1005.14";           
     // Send HTTP POST request
     //int httpResponseCode = http.POST(httpRequestData);
-     
+    
     // If you need an HTTP request with a content type: application/json, use the following:
     http.addHeader("Content-Type", "application/json");
-    int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"value\":\""+dataSend+"\"}");
+    int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"voltage1\":\""+dataSend+"\"}");
 
     // If you need an HTTP request with a content type: text/plain
     //http.addHeader("Content-Type", "text/plain");
     //int httpResponseCode = http.POST("Hello, World!");
-    usbC.println("------------------------------------------------------------------------");
-    usbC.println("Envio de Datos Get");
-    usbC.print("HTTP Response code: ");
-    usbC.println(httpResponseCode);
-    rs485rs232.println("------------------------------------------------------------------------");
-    rs485rs232.println("Envio de Datos Get");
-    rs485rs232.print("HTTP Response code: ");
-    rs485rs232.println(httpResponseCode);
 
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+      
     // Free resources
     http.end();
   }
   else 
-  {
-    usbC.println("WiFi Disconnected");
-    setup_wifi();
-  }
+  {usbC.println("WiFi Disconnected");}
 }
 #endif
 
@@ -696,10 +689,11 @@ void loop()
   delay(200);
   #ifndef MODOAP
     #ifdef MODOHTTPGETPOST
+      int ret = sdp.readSample();
       postHTTPstring(String(sdp.getDifferentialPressure()));
     #endif
     #ifdef MODOMQTT
-      client.publish("esp32/SDP", sdp.getDifferentialPressure());
+      client.publish("esp32/SDP", String(sdp.getDifferentialPressure()));
     #endif    
   #endif
 
