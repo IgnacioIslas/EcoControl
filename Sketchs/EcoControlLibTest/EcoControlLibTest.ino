@@ -14,8 +14,8 @@
 
 //defines begin
 
-#define MODOAP 1
-//#define MODOHTTPGETPOST 2
+//#define MODOAP 1
+#define MODOHTTPGETPOST 2
 //#define MODOMQTT 3
 //#define MODOSERVERCLIENTE 4
 //defines ends
@@ -194,7 +194,7 @@ void postHTTPstring(String dataSend)
      
     // If you need an HTTP request with a content type: application/json, use the following:
     http.addHeader("Content-Type", "application/json");
-    int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"voltage1\":\""+String (dataSend)+"\"}");
+    int httpResponseCode = http.POST("{\"api_key\":\"tPmAT5Ab3j7F9\",\"value\":\""+dataSend+"\"}");
 
     // If you need an HTTP request with a content type: text/plain
     //http.addHeader("Content-Type", "text/plain");
@@ -679,10 +679,10 @@ void loop()
   delay(200);
   #ifndef MODOAP
     #ifdef MODOHTTPGETPOST
-      postHTTPstring(ReplyBuffer);
+      postHTTPstring(String(cc2.temperatureC));
     #endif
     #ifdef MODOMQTT
-      client.publish("esp32/chipcap2", ReplyBuffer);
+      client.publish("esp32/chipcap2", String(cc2.temperatureC));
     #endif
   #endif
 
@@ -696,10 +696,10 @@ void loop()
   delay(200);
   #ifndef MODOAP
     #ifdef MODOHTTPGETPOST
-      postHTTPstring(ReplyBuffer);
+      postHTTPstring(String(sdp.getDifferentialPressure()));
     #endif
     #ifdef MODOMQTT
-      client.publish("esp32/SDP", ReplyBuffer);
+      client.publish("esp32/SDP", sdp.getDifferentialPressure());
     #endif    
   #endif
 
@@ -710,10 +710,10 @@ void loop()
   delay(200);
   #ifndef MODOAP
     #ifdef MODOHTTPGETPOST
-      postHTTPstring(ReplyBuffer);
+      postHTTPstring(String(ds18b20.TempCArray[0]));
     #endif
     #ifdef MODOMQTT
-      client.publish("esp32/DS18B20", ReplyBuffer);
+      client.publish("esp32/DS18B20", String(ds18b20.TempCArray[0]));
     #endif
   #endif
 
@@ -727,7 +727,7 @@ void loop()
   delay(200);
   #ifndef MODOAP
     #ifdef MODOHTTPGETPOST
-      postHTTPstring(ReplyBuffer);
+      //postHTTPstring(ReplyBuffer);
     #endif
     #ifdef MODOMQTT
       client.publish("esp32/EEPROM", ReplyBuffer);
@@ -744,10 +744,10 @@ void loop()
   delay(200);
   #ifndef MODOAP
     #ifdef MODOHTTPGETPOST
-      postHTTPstring(ReplyBuffer);
+      postHTTPstring(String(ads1.readSingleEnded(0)*5/pow(2,23)));
     #endif
     #ifdef MODOMQTT
-      client.publish("esp32/ADS", ReplyBuffer);
+      client.publish("esp32/ADS", String(ads1.readSingleEnded(0)*5/pow(2,23)));
     #endif  
   #endif
 
