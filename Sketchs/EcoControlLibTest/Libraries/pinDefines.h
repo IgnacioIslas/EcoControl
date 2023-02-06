@@ -86,7 +86,34 @@ class Opto
     void enableInterrupt(void (*functionHandler)(), int modo);
     void disableInterrupt(); 
     uint8_t ReadOpto();  
+};
+
+
+class DIGITAL_PIN
+{
+  protected:
+    uint8_t PIN;
+    uint8_t status;
+  public:
+    DIGITAL_PIN(uint8_t PIN_INIT,uint8_t ModePin);
+    //~DIGITAL_PIN();
 }; 
 
+class Output_GPIO : public DIGITAL_PIN
+{
+  public:
+    Output_GPIO(uint8_t PIN_INIT);
+    void High();
+    void Low();
+    void toggle();
+    uint8_t showStatus();  
+};
+
+class Input_GPIO : public DIGITAL_PIN
+{
+  public:
+    Input_GPIO(uint8_t PIN_INIT);
+    uint8_t ReadInput();
+};
 
 #endif
