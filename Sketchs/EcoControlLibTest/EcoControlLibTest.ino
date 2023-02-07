@@ -99,6 +99,10 @@ Opto Opto3 = Opto(OPTO_3_PIN);
 Opto Opto4 = Opto(OPTO_4_PIN);
 Opto Opto5 = Opto(OPTO_5_PIN);
 
+//Pines como salidas
+Output_GPIO salida1(GPIO26);
+Output_GPIO salida2(GPIO27);
+
 
 //Modulo ETHERNET
 unsigned int localPort = 1883;    //10002;  // local port to listen on
@@ -471,7 +475,8 @@ void setup()
   
   //USB UART INIT
   usbC.begin(115200);
-  
+
+ 
   //Configuro pin de habilitacion para RS485/422 y seteo 
   rs485rs232.begin(115200);
   pinMode(U2TxEN, OUTPUT);
@@ -780,4 +785,8 @@ void loop()
   usbC.println(Opto4.ReadOpto());
   usbC.print("OPTO5 : ");
   usbC.println(Opto5.ReadOpto());
+
+  //Cambio de estado los pines
+  salida1.toggle();
+  salida2.toggle();
 }

@@ -84,6 +84,7 @@ bool CFF_ChipCap2::dataReady(void)
         return false;
     if (val == 1)
         return true;
+	return NULL;
 
 }
 
@@ -97,6 +98,7 @@ bool CFF_ChipCap2::checkAlarmLow(void)
         return false;
     if (val == 1)
         return true;
+	return NULL;
 }
 
 // Set Alarm Low Trigger Value in Celsius
@@ -151,18 +153,20 @@ int16_t CFF_ChipCap2::getAlarmLowVal()
         eALow = (((edat[1] << 8) + (edat[2])) / 99) - 40; 
         return eALow;
     }
+	return NULL;
 }
 
 // Check for Alarm High Trigger
 bool CFF_ChipCap2::checkAlarmHigh(void)
 {
     uint8_t val;
-    
     val = digitalRead(_ahighpin);
     if ( val == 0)
         return false;
     if (val == 1)
         return true;
+	
+	return NULL;
 }
 
 // Set Alarm High Trigger Value in Celsius
@@ -217,6 +221,7 @@ int16_t CFF_ChipCap2::getAlarmHighVal()
         eAHigh = (((edat[1] << 8) + (edat[2])) / 99.29) - 40; 
         return eAHigh;
     }
+	return NULL;
 }
 
 // Enters command mode (Only valid during first 10ms after power-on)
