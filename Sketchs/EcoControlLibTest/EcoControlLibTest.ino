@@ -8,6 +8,7 @@
 #include "./Libraries/ADS1219/ADS1219.cpp"
 #include "./Libraries/EEPROM/AT24CM01.cpp"
 #include "./Libraries/PCA9536/SparkFun_PCA9536_Arduino_Library.cpp"
+#include "./Libraries/MCP4725/MCP4725.cpp"
 #include <string.h>
 #include <WiFi.h>
 
@@ -103,6 +104,12 @@ Opto Opto5 = Opto(OPTO_5_PIN);
 Output_GPIO salida1(GPIO26);
 Output_GPIO salida2(GPIO27);
 
+//DAC
+MCP4725 dac1(DAC_1);
+MCP4725 dac2(DAC_2);
+MCP4725 dac3(DAC_3);
+MCP4725 dac4(DAC_4);
+
 
 //Modulo ETHERNET
 unsigned int localPort = 1883;    //10002;  // local port to listen on
@@ -156,7 +163,7 @@ void setup_wifi()
       usbC.println("Configuration failed... trying with dynamic IP");
     }*/
     uint8_t count=0;
-    while (WiFi.status() != WL_CONNECTED & count<=150) 
+    while ((WiFi.status() != WL_CONNECTED) & (count<=150)) 
     {
       delay(500);
       usbC.print(".");
@@ -476,7 +483,23 @@ void setup()
   //USB UART INIT
   usbC.begin(115200);
 
- 
+  //DAC init
+  dac1.begin();
+  dac1.setValue(0);
+  dac2.begin();
+  dac2.setValue(0);
+  dac3.begin();
+  dac3.setValue(0);
+  dac4.begin();
+  dac4.setValue(0);
+
+  if (!dac1.isConnected() & !dac2.isConnected() & !dac3.isConnected() & !dac4.isConnected())  
+  {
+    Serial.println("Error en en conexion de los DAC");
+  }else{
+    Serial.println("DAC init correctamente");
+  }
+
   //Configuro pin de habilitacion para RS485/422 y seteo 
   rs485rs232.begin(115200);
   pinMode(U2TxEN, OUTPUT);
@@ -538,7 +561,6 @@ void setup()
   if (io.begin() == false)
   {
     Serial.println("PCA9536 not detected. Please check wiring. Freezing...");
-    while (1);
   }
   io.pinMode(0, OUTPUT);
   delay(1000);
@@ -750,6 +772,16 @@ void loop()
     #endif  
   #endif
 
+  //Set dac en 0
+
+  usbC.println("----------------------------");
+  usbC.println("Setting Dac en 0");  
+  usbC.println("----------------------------");
+  dac1.setValue(0);
+  dac2.setValue(0);
+  dac3.setValue(0);
+  dac4.setValue(0);
+
   //LEDS on
   io.write(0, LOW);
   delay(500);
@@ -773,6 +805,17 @@ void loop()
   delay(500);
   io.write(1, HIGH);
   delay(500);
+
+  //Set dac en 4095
+
+  usbC.println("----------------------------");
+  usbC.println("Setting Dac en 4095");  
+  usbC.println("----------------------------");
+  dac1.setValue(4095);
+  dac2.setValue(4095);
+  dac3.setValue(4095);
+  dac4.setValue(4095);
+
 
   //OPTOS
   usbC.print("OPTO1 : ");
