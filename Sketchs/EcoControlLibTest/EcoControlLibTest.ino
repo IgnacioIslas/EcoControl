@@ -16,13 +16,13 @@
 //defines begin
 
 //#define MODOAP 1
-#define MODOHTTPGETPOST 2
-//#define MODOMQTT 3
+//#define MODOHTTPGETPOST 2
+#define MODOMQTT 3
 //#define MODOSERVERCLIENTE 4
 //defines ends
 
 #ifdef MODOAP
-  #include "./Libraries/AsyncTCP-master/src/AsyncTCP.h"
+  #include "./Libraries/AsyncTCP/src/AsyncTCP.h"
   #include "./Libraries/ESPAsyncWebServer-master/src/ESPAsyncWebServer.h"
   //Acces Point(wifi) config
   const char* ssid = "ESP32-AP";
